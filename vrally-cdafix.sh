@@ -1,12 +1,12 @@
-#!/bin/env bash
+#!/usr/bin/env bash
 
-# Need for Speed: V-Rally Tick Killer by Brendon, 08/23/2022.
-# ——RIFF WAVE stripper. https://BrendonIrwan.github.io/vrally-cdafix
+# Need for Speed: V-Rally Tick Killer u0r1 by Brendon, 12/31/2022.
+# ——Infogrames RIFF WAVE stripper. https://BrendonIrwan.github.io/vrally-cdafix
 #
-# If you hear a loud tick between songs, then those are RIFF WAVE headers that
-# Infogrames did not strip prior to mastering. This script does that, and
-# on the zeros after the trailing metadata. The result is as if they
-# treated the source audio files as audio instead of binary blobs.
+# If you hear ticks between songs, then those are RIFF WAVE headers and other
+# metadata that Infogrames did not strip prior to mastering. This script does
+# that, and also on the trailing zeros. The result is as if they treated the
+# source audio files as headered instead of raw.
 #
 # Each track must be its own file. See below for MD5s.
 #
@@ -32,45 +32,52 @@
 #   where "---" denotes a deletion. Each position follows SoX's notation.
 
 # Two seconds for the 0th index.
-VRF_PS1=2
-# RIFF WAVE headers are 44 bytes which spans 11 samples.
-VRF_PS2='+11s'
-declare -ar VRF_PS3S=(
+readonly VRF_PS1=2
+# RIFF WAVE headers are 44 bytes which span 11 samples.
+readonly VRF_PS2='+11s'
+# Start of trailing metadata.
+readonly -a VRF_PS3S=(
 '-557s' '-499s' '-27s' '-448s' '-348s' '-99s' '-171s' '-110s' '-569s'
 )
-#VRF_PS4='+8s'
+# Not used.
+#readonly VRF_PS4='+8s'
 # PS4 for track 10.
-#VRF_PS4='+36s'
+#readonly VRF_PS4='+36s'
 # Working filename suffix.
-VRF_SFX='.vrf'
+readonly VRF_SUF='.vrf'
 
-fail() {
-  echo "${1}" 1>&2
+# For use in iterations.
+IFS=' '
+
+VRF.die() {
+  (( ${#} )) && echo "${@}" 1>&2
   exit 1
 }
 
-type 'mv' &> /dev/null || fail '`mv` not found.'
-type 'sox' &> /dev/null || fail '`sox` not found.'
+type 'mv' &> /dev/null || VRF.die '`mv` not found.'
+type 'sox' &> /dev/null || VRF.die '`sox` not found.'
 
-peek() {
-  [ -e "${1}" ] || fail "${1}"': Not found.'
-  [ -f "${1}" ] || fail "${1}"': Not a regular file.'
-  [ -r "${1}" ] || fail "${1}"': No read permission.'
+VRF.test() {
+  [ -e "${1}" ] || VRF.die "${1}"': Not found.'
+  [ -f "${1}" ] || VRF.die "${1}"': Not a regular file.'
+  [ -r "${1}" ] || VRF.die "${1}"': No read permission.'
 }
 
-[ "${1}" ] || {
-  echo 'Usage: <track 2> <track 3> ... <track 10>'
+(( ${#} )) || {
+  echo 'Usage: [<track 1>] <track 2> ... <track 10>
+Track 1 is accepted for convenience with globbing and is otherwise ignored.'
   exit
 }
-(( "${#}" < "${#VRF_PS3S[*]}" )) && fail 'Too few arguments.'
-(( "${#}" > "${#VRF_PS3S[*]}" )) && fail 'Too many arguments.'
+(( ${#} < ${#VRF_PS3S[@]} )) && VRF.die 'Too few arguments.'
+(( ${#} > ${#VRF_PS3S[@]} + 1 )) && VRF.die 'Too many arguments.'
+(( ${#} == ${#VRF_PS3S[@]} + 1 )) && shift
 for vrfItm in "${@}"; do
-  peek "${vrfItm}"
+  VRF.test "${vrfItm}"
 done
 vrfIdx=0
 for vrfItm in "${@}"; do
   sox -e 'signed-integer' -b 16 --endian 'little' -c 2 -r 44100 -t 'raw' \
-      "${vrfItm}" -t 'raw' "${vrfItm}""${VRF_SFX}" trim 0 "${VRF_PS1}" \
+      "${vrfItm}" -t 'raw' "${vrfItm}""${VRF_SUF}" trim 0 "${VRF_PS1}" \
       "${VRF_PS2}" "${VRF_PS3S[$(( vrfIdx++ ))]}" \
-  && mv -f "${vrfItm}""${VRF_SFX}" "${vrfItm}"
+      && mv -f "${vrfItm}""${VRF_SUF}" "${vrfItm}" || VRF.die
 done

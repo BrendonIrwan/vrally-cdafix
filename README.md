@@ -1,16 +1,18 @@
 # Need for Speed: V-Rally Tick Killer
 
-—RIFF WAVE stripper.
+—Infogrames RIFF WAVE stripper.
 
 ## Downloads
 
-* [[**Latest Release**](https://github.com/BrendonIrwan/vrally-cdafix/raw/master/vrally-cdafix.sh)] — 08/23/2022.
+* [[**Latest Release**](https://github.com/BrendonIrwan/vrally-cdafix/raw/master/vrally-cdafix.sh)] — 12/31/2022.
 
 ## Usage
 
 ```
-$ ./vrally-cdafix.sh <track 2> <track 3> ... <track 10>
+$ ./vrally-cdafix.sh [<track 1]> [<track 2>] ... <track 10>
 ```
+
+Track 1 is accepted for convenience with globbing and is otherwise ignored.
 
 ## Prerequisites
 
@@ -19,10 +21,10 @@ $ ./vrally-cdafix.sh <track 2> <track 3> ... <track 10>
 
 ## About
 
-If you hear a loud tick between songs, then those are RIFF WAVE headers that
-Infogrames did not strip prior to mastering. This script does that, and
-on the zeros after the trailing metadata. The result is as if they
-treated the source audio files as audio instead of binary blobs.
+If you hear ticks between songs, then those are RIFF WAVE headers and other
+metadata that Infogrames did not strip prior to mastering. This script does
+that, and also on the trailing zeros. The result is as if they treated the
+source audio files as headered instead of raw.
 
 Each track must be its own file. See below for MD5s.
 
