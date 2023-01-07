@@ -4,12 +4,12 @@
 
 ## Downloads
 
-* [[**Latest Release**](https://github.com/BrendonIrwan/vrally-cdafix/raw/master/vrally-cdafix.sh)] — 12/31/2022.
+* [[**Latest Release**](https://github.com/BrendonIrwan/vrally-cdafix/raw/master/vrally-cdafix.sh)] — Update 0 Revision 1, 12/31/2022.
 
 ## Usage
 
 ```
-$ ./vrally-cdafix.sh [<track 1]> [<track 2>] ... <track 10>
+$ ./vrally-cdafix.sh [<track 1>] <track 2> ... <track 10>
 ```
 
 Track 1 is accepted for convenience with globbing and is otherwise ignored.
